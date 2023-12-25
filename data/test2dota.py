@@ -7,33 +7,49 @@ from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from argparse import ArgumentParser
 
-def get_rotated_rect_corners(x, y, w, h, theta):
-    
-    center_x = x + w / 2
-    center_y = y + h / 2
-    cos_theta = np.cos(np.radians(theta))
-    sin_theta = np.sin(np.radians(theta))
+def gen_boundingbox_rot(bbox, angle):
+        """
+        generate a list of 2D points from bbox and angle 
+        """
+        theta = np.deg2rad(-angle)
+        R = np.array([[np.cos(theta), -np.sin(theta)],
+                      [np.sin(theta), np.cos(theta)]])
+        points = np.array([[bbox[0], bbox[1]],
+                           [bbox[0] + bbox[2], bbox[1]],
+                           [bbox[0] + bbox[2], bbox[1] + bbox[3]],
+                           [bbox[0], bbox[1] + bbox[3]]]).T
 
-    x1 = int(center_x + w / 2 * cos_theta - h / 2 * sin_theta)
-    y1 = int(center_y + w / 2 * sin_theta + h / 2 * cos_theta)
-    x2 = int(center_x - w / 2 * cos_theta - h / 2 * sin_theta)
-    y2 = int(center_y - w / 2 * sin_theta + h / 2 * cos_theta)
-    x3 = int(center_x - w / 2 * cos_theta + h / 2 * sin_theta)
-    y3 = int(center_y - w / 2 * sin_theta - h / 2 * cos_theta)
-    x4 = int(center_x + w / 2 * cos_theta + h / 2 * sin_theta)
-    y4 = int(center_y + w / 2 * sin_theta - h / 2 * cos_theta)
+        cx = bbox[0] + bbox[2] / 2
+        cy = bbox[1] + bbox[3] / 2
+        T = np.array([[cx], [cy]])
 
-    return [x1, y1, x2, y2, x3, y3, x4, y4]
+        points = points - T
+        points = np.matmul(R, points) + T
+        points = points.astype(int)
 
-def draw_rotated_bbox(image, position):
+        return points
+
+def draw_boundingbox_rot(im, points, color=(0, 1, 0)):
+    # points = gen_boundingbox_rot(bbox, angle)
+
+    color = (np.array(color) * 255).tolist()
+
+    cv2.line(im, tuple(points[:, 0]), tuple(points[:, 1]), color, 3)
+    cv2.line(im, tuple(points[:, 1]), tuple(points[:, 2]), color, 3)
+    cv2.line(im, tuple(points[:, 2]), tuple(points[:, 3]), color, 3)
+    cv2.line(im, tuple(points[:, 3]), tuple(points[:, 0]), color, 3)
+
+    return im
+
+def draw_rotated_bbox(image, position, color=(0, 1, 0)):
 
     x1, y1, x2, y2, x3, y3, x4, y4 = position
     corners = np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]], dtype=np.int32)
     corners = corners.reshape((-1, 1, 2))
-    cv2.polylines(image, [corners], isClosed=True, color=(0, 255, 0), thickness=2)
+    color = (np.array(color) * 255).tolist()
+    cv2.polylines(image, [corners], isClosed=True, color=color, thickness=2)
     
     return image
-
 
 def get_radar_dicts(root_src: str, root_dst: str):
     
@@ -92,10 +108,16 @@ def get_radar_dicts(root_src: str, root_dst: str):
                 if (annotation['bboxes'][frame_number]):
                     # example {"position": [563.4757032731811, 490.9060756081957, 15.766302833034956, 24.05435500075953], "rotation": 0},
                     position = annotation['bboxes'][frame_number]['position']
-                    theta = annotation['bboxes'][frame_number]['rotation']
+                    angle = annotation['bboxes'][frame_number]['rotation']
 
                     x, y, w, h = position
-                    position = get_rotated_rect_corners(x, y, w, h, theta)
+                    position_2d = gen_boundingbox_rot([x, y, w, h], angle)
+                    position_2d = position_2d.tolist()
+                    
+                    position = []
+                    for i in range(4):
+                        position.append(position_2d[0][i])
+                        position.append(position_2d[1][i])
                     
                     obj = position
                     obj.append(class_name)
@@ -112,11 +134,22 @@ def get_radar_dicts(root_src: str, root_dst: str):
             # split the files into train/valid depend on the train_test_spilt result
             mode = 'test'
             shutil.copyfile(filename, os.path.join(f'{root_dst}/{mode}/images', f'{folder}_{radar_files[frame_number]}'))
+            
+            colors = {'car': (1, 1, 1),
+                       'bus': (0, 1, 0),
+                       'truck': (0, 0, 1),
+                       'pedestrian': (1.0, 1.0, 0.0),
+                       'van': (1.0, 0.3, 0.0),
+                       'group_of_pedestrians': (1.0, 1.0, 0.3),
+                       'motorbike': (0.0, 1.0, 1.0),
+                       'bicycle': (0.3, 1.0, 1.0),
+                       'vehicle': (1.0, 0.0, 0.0)
+            }
             with open(os.path.join(f'{root_dst}/{mode}/annotations', f'{folder}_{radar_files[frame_number][:-4]}.txt'), 'w') as fw:
                 image = cv2.imread(os.path.join(os.path.join(f'{root_dst}/{mode}/images', f'{folder}_{radar_files[frame_number]}')))
                 for obj in objs:
                     # 
-                    image = draw_rotated_bbox(image, obj[:8])
+                    image = draw_rotated_bbox(image, obj[:8], colors[obj[8]])
 
                     # 
                     obj = [str(i) for i in obj]
