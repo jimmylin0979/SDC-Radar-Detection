@@ -8,8 +8,11 @@ import mmrotate
 from mmrotate.models import build_detector
 
 #
+import os
+import cv2
+import json
 import numpy as np
-from matplotlib.patches import Polygon
+from tqdm import tqdm
 from argparse import ArgumentParser
 
 
@@ -57,6 +60,12 @@ def rbbox2corner(bboxes):
 
 def postprocess(bboxes, score_thr=0.3):
 
+    labels = [
+        np.full(bbox.shape[0], i, dtype=np.int32)
+        for i, bbox in enumerate(bboxes)
+    ]
+    labels = np.concatenate(labels)
+
     bboxes = np.vstack(bboxes)  # (113, 6)
 
     if score_thr > 0:
@@ -65,15 +74,106 @@ def postprocess(bboxes, score_thr=0.3):
         inds = scores > score_thr
         bboxes = bboxes[inds, :]
         scores = bboxes[:, 5] if bboxes.shape[1] == 6 else None
+        labels = labels[inds]
     
     bboxes = rbbox2corner(bboxes)
+    for i, bbox in enumerate(bboxes):
+        bbox.append(labels[i])
+        bbox.append(scores[i])
     return bboxes
 
+
+def to_json(bboxes, save_path: str):
+
+    """
+    [
+        {
+            "sample_token": "000001",
+            "points": [
+                [
+                    787,
+                    1052
+                ],
+                [
+                    787,
+                    1045
+                ],
+                [
+                    804,
+                    1045
+                ],
+                [
+                    804,
+                    1052
+                ]
+            ],
+            "name": "scooter",
+            "scores": 0.842
+        },
+        {
+            "sample_token": "000002",
+            "points": [
+                [
+                    771,
+                    1037
+                ],
+                [
+                    771,
+                    1025
+                ],
+                [
+                    792,
+                    1025
+                ],
+                [
+                    792,
+                    1037
+                ]
+            ],
+            "name": "car",
+            "scores": 0.783
+        },
+    ]
+    """
+    
+    class_name = ('group_of_pedestrians', 'truck', 'pedestrian', 'van', 'bus', 'car',
+           'bicycle')
+
+    res = []
+    for image_id, bboxes_in_image in tqdm(enumerate(bboxes)):
+        for bbox_id, bbox in enumerate(bboxes_in_image):
+
+            # bbox = [672, 482, 685, 497, 661, 517, 648, 502, 3, 0.44206986]
+            points = [[bbox[2 * i], bbox[2 *i + 1]] for i in range(4)]
+            d = {
+                "sample_token": f"{image_id + 1:06d}",
+                "points": points, 
+                "name": class_name[bbox[-2]],
+                "scores": str(bbox[-1]),
+            }
+            res.append(d)
+
+    res = json.dumps(res, indent=4)
+    # with open('predictions.json', 'w', encoding='utf-8') as fw:
+    #     json.dump(data, f, ensure_ascii=False, indent=4)
+    with open("predictions.json", "w") as fw:
+        fw.write(res)
+
+
 if __name__ == '__main__':
+
+    """
+    python inference.py \
+        --config mmrotate/work_dirs/sdc_oriented_reppoints_r50_fpn_40e_dota_ms_le135/sdc_oriented_reppoints_r50_fpn_40e_dota_ms_le135.py \
+        --ckpt mmrotate/work_dirs/sdc_oriented_reppoints_r50_fpn_40e_dota_ms_le135/epoch_12.pth \
+        --root data/mini_train_dota/test/images
+    """
 
     parser = ArgumentParser()
     parser.add_argument("--config", help="", type=str, required=True)
     parser.add_argument("--ckpt", help="", type=str, required=True)
+    parser.add_argument("--root", help="", type=str, required=True)
+    parser.add_argument("--save-path", help="", type=str, default="predictions.json")
     args = parser.parse_args()    
 
     # build model from loaded config file
@@ -91,8 +191,20 @@ if __name__ == '__main__':
     model.to(device)
     model.eval()
 
-    img = './data/mini_train_dota/test/images/city_7_0_000001.png'
-    result = inference_detector(model, img)
-    result = postprocess(result)
-    print(result)
-    # show_result_pyplot(model, img, result, score_thr=0.3, palette='dota')
+    results = []
+    listdir = sorted(os.listdir(args.root))
+    for file in tqdm(listdir):
+        if not file.endswith(".png"):
+            continue
+        # img = './data/mini_train_dota/test/images/city_7_0_000001.png'
+        img = os.path.join(args.root, file)
+        result = inference_detector(model, img)
+        # show_result_pyplot(model, img, result, score_thr=0.3, palette='dota')
+
+        # [[672, 482, 685, 497, 661, 517, 648, 502, 0.44206986, 3], ...]
+        result = postprocess(result)
+        results.append(result)
+
+    # 
+    to_json(results, save_path=args.save_path)
+        

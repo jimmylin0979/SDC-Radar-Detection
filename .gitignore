@@ -14,8 +14,9 @@ data/whole_train*
 # Example Detectron2 code
 2023_final
 
-#
-
+# predictions
+*.json
+script.sh
 
 ### C++ ###
 # Prerequisites
