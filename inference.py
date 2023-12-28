@@ -149,14 +149,14 @@ def to_json(bboxes, save_path: str):
                 "sample_token": f"{image_id + 1:06d}",
                 "points": points, 
                 "name": class_name[bbox[-2]],
-                "scores": str(bbox[-1]),
+                "scores": float(bbox[-1]),
             }
             res.append(d)
 
     res = json.dumps(res, indent=4)
     # with open('predictions.json', 'w', encoding='utf-8') as fw:
     #     json.dump(data, f, ensure_ascii=False, indent=4)
-    with open("predictions.json", "w") as fw:
+    with open(save_path, "w") as fw:
         fw.write(res)
 
 
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     parser.add_argument("--config", help="", type=str, required=True)
     parser.add_argument("--ckpt", help="", type=str, required=True)
     parser.add_argument("--root", help="", type=str, required=True)
-    parser.add_argument("--save-path", help="", type=str, default="predictions.json")
+    # parser.add_argument("--save-path", help="", type=str, default="predictions.json")
     args = parser.parse_args()    
 
     # build model from loaded config file
@@ -206,5 +206,7 @@ if __name__ == '__main__':
         results.append(result)
 
     # 
-    to_json(results, save_path=args.save_path)
+    save_path = args.config.split(r"/")[-1][:-3]
+    save_path = save_path + ".json"
+    to_json(results, save_path=save_path)
         
