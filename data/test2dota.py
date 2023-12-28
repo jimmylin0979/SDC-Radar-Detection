@@ -161,9 +161,6 @@ def get_radar_dicts(root_src: str, root_dst: str):
             # if bb_created:
             #     record["annotations"] = objs
             #     dataset_dicts.append(record)
-
-        # TODO
-        # break
     
     print(seen_class_name)
     return dataset_dicts

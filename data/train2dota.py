@@ -134,7 +134,7 @@ def get_radar_dicts(root_src: str, root_dst: str):
                 os.makedirs(f'{root_dst}/{mode}/annotations', exist_ok=True)
             
             # split the files into train/valid depend on the train_test_spilt result
-            mode = 'train' if frame_number in train_indices else 'valid'
+            mode = 'train' # if frame_number in train_indices else 'valid'
             shutil.copyfile(filename, os.path.join(f'{root_dst}/{mode}/images', f'{folder}_{radar_files[frame_number]}'))
 
             colors = {'car': (1, 1, 1),
