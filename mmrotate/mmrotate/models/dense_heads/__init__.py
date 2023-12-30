@@ -16,6 +16,8 @@ from .rotated_retina_head import RotatedRetinaHead
 from .rotated_retina_refine_head import RotatedRetinaRefineHead
 from .rotated_rpn_head import RotatedRPNHead
 from .sam_reppoints_head import SAMRepPointsHead
+# TODO
+# from .rotated_rtmdet_head import RotatedRTMDetHead, RotatedRTMDetSepBNHead
 
 __all__ = [
     'RotatedAnchorHead', 'RotatedRetinaHead', 'RotatedRPNHead',
@@ -23,5 +25,6 @@ __all__ = [
     'KFIoURRetinaHead', 'KFIoURRetinaRefineHead', 'KFIoUODMRefineHead',
     'RotatedRepPointsHead', 'SAMRepPointsHead', 'CSLRRetinaHead',
     'RotatedATSSHead', 'RotatedAnchorFreeHead', 'RotatedFCOSHead',
-    'CSLRFCOSHead', 'OrientedRepPointsHead'
+    'CSLRFCOSHead', 'OrientedRepPointsHead',
+    # 'RotatedRTMDetHead', 'RotatedRTMDetSepBNHead'
 ]
