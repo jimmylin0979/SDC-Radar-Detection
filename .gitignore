@@ -5,6 +5,10 @@
 # RADIATE sdk
 radiate_sdk
 
+# MM Frameworks
+mmflow
+mmdetection
+
 # Dataset
 data/mini_test*
 data/mini_train*
@@ -19,6 +23,7 @@ results
 
 # predictions
 *.json
+viz*
 script.sh
 
 ### C++ ###
