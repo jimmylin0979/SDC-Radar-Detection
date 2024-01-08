@@ -27,25 +27,28 @@ train_pipeline = [
 
 
 data_root = '/home/jimmylin0979/Desktop/Disk1/SDC-Final/data/mini_train_dota/'
-classes=('group_of_pedestrians', 'truck', 'pedestrian', 'van', 'bus', 'car', 'bicycle')
+# classes=('group_of_pedestrians', 'truck', 'pedestrian', 'van', 'bus', 'car', 'bicycle')
+classes=('car', )
 dataset_type = 'DOTADataset'
 data = dict(
+    samples_per_gpu=2,
+    workers_per_gpu=2,
     train=dict(
         pipeline=train_pipeline,
         type=dataset_type,
         classes=classes,
         ann_file=data_root + 'train/annotations/',
-        img_prefix=data_root + 'train/images/'),
+        img_prefix=data_root + 'train/images_preprocessed_v2/'),
     val=dict(
         type=dataset_type,
         classes=classes,
         ann_file=data_root + 'test/annotations/',
-        img_prefix=data_root + 'test/images/'),
+        img_prefix=data_root + 'test/images_preprocessed_v2/'),
     test=dict(
         type=dataset_type,
         classes=classes,
         ann_file=data_root + 'test/images/',
-        img_prefix=data_root + 'test/images/'))
+        img_prefix=data_root + 'test/images_preprocessed_v2/'))
 
 
 model = dict(
@@ -94,3 +97,11 @@ model = dict(
                 loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0))
         ]
     ))
+
+workflow = [('train', 1), ('val', 1)]
+default_hooks = dict(
+    checkpoint=dict(type='CheckpointHook', save_best='auto'))
+
+custom_hooks = [
+    dict(type='EMAHook')
+] 

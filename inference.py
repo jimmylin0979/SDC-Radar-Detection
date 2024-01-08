@@ -147,8 +147,9 @@ def to_json(bboxes, save_path: str, root_image: str = ""):
     ]
     """
     
-    class_name = ('group_of_pedestrians', 'truck', 'pedestrian', 'van', 'bus', 'car',
-           'bicycle')
+    # class_name = ('group_of_pedestrians', 'truck', 'pedestrian', 'van', 'bus', 'car',
+    #        'bicycle')
+    class_name = ('car', )
 
     colors = {
         'car': (1, 1, 1),

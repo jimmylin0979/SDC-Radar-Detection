@@ -5,3 +5,6 @@ whole_train*
 *.zip
 ITRI*
 Competition*
+train*
+test*
+Bonus*

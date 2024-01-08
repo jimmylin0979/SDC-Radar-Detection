@@ -19,7 +19,7 @@ data/whole_train*
 2023_final
 
 # Checkpoints
-results
+results*
 
 # predictions
 *.json

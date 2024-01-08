@@ -106,6 +106,11 @@ def get_radar_dicts(root_src: str, root_dst: str):
                 seen_class_name.add(class_name)
                 difficulty = 0
 
+                # Only care for class car
+                # classes=('group_of_pedestrians', 'truck', 'pedestrian', 'van', 'bus', 'car', 'bicycle')
+                if class_name in ['group_of_pedestrians', 'pedestrian']:
+                    continue
+
                 if (annotation['bboxes'][frame_number]):
                     # example {"position": [563.4757032731811, 490.9060756081957, 15.766302833034956, 24.05435500075953], "rotation": 0},
                     position = annotation['bboxes'][frame_number]['position']
@@ -157,6 +162,7 @@ def get_radar_dicts(root_src: str, root_dst: str):
 
                     # 
                     obj = [str(i) for i in obj]
+                    obj[-2] = 'car'
                     annotation = ' '.join(obj)
                     fw.write(annotation + '\n')
                 
