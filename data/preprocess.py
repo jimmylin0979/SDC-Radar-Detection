@@ -26,5 +26,5 @@ if __name__ == "__main__":
             
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
-            os.makedirs(f"{root_src}/{mode}/images_preprocessed_v2", exist_ok=True)
-            cv2.imwrite(os.path.join(f"{root_src}/{mode}/images_preprocessed_v2", file), image)
+            os.makedirs(f"{root_src}/{mode}/images_preprocessed", exist_ok=True)
+            cv2.imwrite(os.path.join(f"{root_src}/{mode}/images_preprocessed", file), image)

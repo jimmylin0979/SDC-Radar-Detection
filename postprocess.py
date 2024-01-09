@@ -4,6 +4,7 @@ import numpy as np
 import json
 import math
 from tqdm import tqdm
+from argparse import ArgumentParser
 
 def load_annotations(path: str):    
     bboxes = None
@@ -215,9 +216,18 @@ def to_json(bboxes, save_path: str, root_image: str = ""):
         fw.write(res)
 
 if __name__ == "__main__":
+
+    #
+    parser = ArgumentParser()
+    parser.add_argument("--json-path", help="", type=str, required=True)
+    parser.add_argument("--save-path", help="", type=str, required=True)
+    parser.add_argument("--root-image", help="", type=str, required=True)
+    # parser.add_argument("--save-path", help="", type=str, default="predictions.json")
+    args = parser.parse_args()    
     
     # 
-    path = "./results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/20240103_rotated_redet_re50_refpn_1x_dota_ms_rr_le90.json"
+    # path = "./results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/20240103_rotated_redet_re50_refpn_1x_dota_ms_rr_le90.json"
+    path = args.json_path
     bboxes = load_annotations(path)
     # print(bboxes)
 
@@ -245,6 +255,7 @@ if __name__ == "__main__":
     # print(bboxes_in_frame)
     
     # 
-    save_path = "predictions.json"
-    root_image = "./data/Competition_Image_preprocessed_v2"
+    # save_path = "predictionsspetition_Image_preprocessed"
+    save_path = args.save_path
+    root_image = args.root_image
     to_json(bboxes_in_frame, save_path=save_path, root_image=root_image)
