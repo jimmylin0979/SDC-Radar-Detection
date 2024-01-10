@@ -2,11 +2,15 @@
 
 ## Flow
 
-![flow chart](./imgs/fig_flowChart.jpg)
+<div align=center>
+<img src="./imgs/fig_flowChart.jpg" width=600 height=300>
+</div>
+
+The [radar object detection competetion](https://hackmd.io/@o9u3GdlgQHek0bP3DEeBIA/B1f89FlmT) of NYCU 2024 SDC
 
 ## Installation
 
-We use MMRotate as our detection frameworkm, which requires Python 3.7+, CUDA 9.2+ and PyTorch 1.6+.
+We use [MMRotate](https://github.com/open-mmlab/mmrotate) as our detection frameworkm, which requires Python 3.7+, CUDA 9.2+ and PyTorch 1.6+.
 
 ```bash
 git clone https://github.com/jimmylin0979/SDC-Radar-Detection.git
@@ -31,9 +35,11 @@ pip install -r requirements.txt
 
 ## PreProcess
 
-![preprocess](./imgs/fig_preProcess.jpg)
+<div align=center>
+<img src="./imgs/fig_preProcess.jpg" width=600 height=400>
+</div>
 
-Download dataset zip file, unzip and place them into below format:
+Download [SDC dataset zip file](https://drive.google.com/drive/folders/1t8mpGl98o3kfc4nDWA7MC_ahNk8Kl_SG), unzip and place them under `data` folder with below format:
 ```bash
 # Dataset structure 
 data
@@ -50,14 +56,18 @@ data
 # cd into data folder
 cd data
 
-# the following command will generate mini_train_dota folder for transfered dataset
+# the following command will generate 'mini_train_dota' folder for transfered dataset
 python3 train2dota.py   # transfer mini_train to DOTA format
 python3 test2dota.py    # transfer mini_test to DOTA format
 python3 preprocess.py   # filter out too small radar value 
+
+# the following command will generate 'Competetion_Image_preprocessed'
 python3 preprocess_Competition.py   # filter out too small radar value for competition image
 ```
 
 ## Training
+
+In this competetion, I use [ReDet](https://github.com/open-mmlab/mmrotate/tree/main/configs/redet) as our detection model, to reproduce, please download pretrained weight of ReResNet backbone from [ReDet](https://github.com/csuhan/ReDet), and put it on `mmrotate/work_dirs/pretrain`.
 
 ```bash
 # cd in mmrotate folder
@@ -68,7 +78,9 @@ cd mmrotate
 CONFIG_FILE=???
 WORK_DIR=???
 python tools/train.py ${CONFIG_FILE} --work-dir ${WORK_DIR}
+```
 
+```bash
 # Example
 # train with redet with config redet_re50_refpn_1x_dota_ms_rr_le90, and store the checkpoint into work dir
 python3 tools/train.py configs/sdc/redet_re50_refpn_1x_dota_ms_rr_le90.py --work-dir ../results/redet_re50_refpn_1x_dota_ms_rr_le90
@@ -76,7 +88,9 @@ python3 tools/train.py configs/sdc/redet_re50_refpn_1x_dota_ms_rr_le90.py --work
 
 ## Inference
 
-![ReDet Prediction](./imgs//fig_prediction.jpg)
+<div align=center>
+<img src="./imgs/fig_prediction.jpg" width=600 height=300>
+</div>
 
 ```bash
 # inference the rotated object detection model with specific config files, checkpoint path and image root
@@ -85,7 +99,9 @@ CONFIG_FILE=???
 CKPT_DIR=???
 IMG_DIR=???
 python inference.py --config ${CONFIG_FILE} --ckpt ${CKPT_DIR} --root ${IMG_DIR}
+```
 
+```bash
 # Example
 # inference the redet with config, and checkpoint on specific image root 
 python inference.py --config results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/redet_re50_refpn_1x_dota_ms_rr_le90.py --ckpt results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/latest.pth --root ./data/Competetion_Image_preprocessed
@@ -93,7 +109,9 @@ python inference.py --config results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/
 
 ## PostProcess
 
-![postprocess](./imgs/fig_postprocess.jpg)
+<div align=center>
+<img src="./imgs/fig_postprocess.jpg" width=600 height=300>
+</div>
 
 ```bash
 # postprocess with eraseGhost function to improve model's FP
@@ -101,7 +119,9 @@ JSON_PATH=???
 SAVE_PATH=???
 IMG_DIR=???
 pytho postprocess.py --json-path ${JSON_PATH} --save-path ${SAVE_PATH} --root-image ${IMG_DIR}
+```
 
+```bash
 # Example 
 # postprocess with prediction files (.json) and save new one as predictions.json, with provided root image dir for visualization 
 python postprocess.py --json-path ./results/redet_re50_refpn_1x_dota_ms_rr_le90/rotated_redet_re50_refpn_1x_dota_ms_rr_le90.json --save-path predictions.json --root-image ./data/Competition_Image_preprocessed

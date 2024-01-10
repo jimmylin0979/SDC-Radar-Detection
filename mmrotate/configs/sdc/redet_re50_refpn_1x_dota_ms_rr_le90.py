@@ -38,17 +38,17 @@ data = dict(
         type=dataset_type,
         classes=classes,
         ann_file=data_root + 'train/annotations/',
-        img_prefix=data_root + 'train/images_preprocessed_v2/'),
+        img_prefix=data_root + 'train/images_preprocessed/'),
     val=dict(
         type=dataset_type,
         classes=classes,
         ann_file=data_root + 'test/annotations/',
-        img_prefix=data_root + 'test/images_preprocessed_v2/'),
+        img_prefix=data_root + 'test/images_preprocessed/'),
     test=dict(
         type=dataset_type,
         classes=classes,
         ann_file=data_root + 'test/images/',
-        img_prefix=data_root + 'test/images_preprocessed_v2/'))
+        img_prefix=data_root + 'test/images_preprocessed/'))
 
 
 model = dict(
