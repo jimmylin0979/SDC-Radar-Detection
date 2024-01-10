@@ -20,7 +20,7 @@ if __name__ == "__main__":
             # image = cv2.imread("./mini_train_dota/test/images/city_7_0_000292.png", cv2.IMREAD_GRAYSCALE)
             image = cv2.imread(os.path.join(f"{root_src}/{mode}/images", file), cv2.IMREAD_GRAYSCALE)
             
-            threshold = 25
+            threshold = 60
             mask = image > threshold
             image = image * mask
             

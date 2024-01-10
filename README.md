@@ -75,8 +75,8 @@ cd mmrotate
 
 # the training command in mmrotate
 # train model declared in CONFIG_FILE, and store everything in WORK_DIR
-CONFIG_FILE=???
-WORK_DIR=???
+CONFIG_FILE=configs/sdc/???.yaml
+WORK_DIR=../results/???
 python tools/train.py ${CONFIG_FILE} --work-dir ${WORK_DIR}
 ```
 
@@ -95,15 +95,15 @@ python3 tools/train.py configs/sdc/redet_re50_refpn_1x_dota_ms_rr_le90.py --work
 ```bash
 # inference the rotated object detection model with specific config files, checkpoint path and image root
 # it will generate a viz folder for visualization and a json file for predictions
-CONFIG_FILE=???
-CKPT_DIR=???
+CONFIG_FILE=../results/???/???.yaml
+CKPT_DIR=../results/???
 IMG_DIR=???
 python inference.py --config ${CONFIG_FILE} --ckpt ${CKPT_DIR} --root ${IMG_DIR}
 ```
 
 ```bash
 # Example
-# inference the redet with config, and checkpoint on specific image root 
+# inference the redet with config, and checkpoint on images under `./data/Competetion_Image_preprocessed` folder
 python inference.py --config results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/redet_re50_refpn_1x_dota_ms_rr_le90.py --ckpt results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/latest.pth --root ./data/Competetion_Image_preprocessed
 ```
 
