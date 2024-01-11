@@ -104,7 +104,7 @@ python inference.py --config ${CONFIG_FILE} --ckpt ${CKPT_DIR} --root ${IMG_DIR}
 ```bash
 # Example
 # inference the redet with config, and checkpoint on images under `./data/Competetion_Image_preprocessed` folder
-python inference.py --config results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/redet_re50_refpn_1x_dota_ms_rr_le90.py --ckpt results/redet_re50_refpn_1x_dota_ms_rr_le90_batch2/latest.pth --root ./data/Competetion_Image_preprocessed
+python inference.py --config results/redet_re50_refpn_1x_dota_ms_rr_le90/redet_re50_refpn_1x_dota_ms_rr_le90.py --ckpt results/redet_re50_refpn_1x_dota_ms_rr_le90/latest.pth --root ./data/Competetion_Image_preprocessed
 ```
 
 ## PostProcess
